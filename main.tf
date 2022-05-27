@@ -33,6 +33,7 @@ resource "openstack_compute_instance_v2" "instance" {
   key_pair        = openstack_compute_keypair_v2.ssh_keypair.name
   region          = local.region
   security_groups = var.security_groups
+  metadata        = var.metadata
   dynamic "network" {
     for_each = var.network
     content {

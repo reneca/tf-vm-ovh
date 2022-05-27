@@ -82,6 +82,9 @@ module "vm" {
   }
 
   name         = "dummy"
+  metadata = {
+    this = "that"
+  }
   ssh_key_path = "~/.ssh/id_ecdsa.pub"
   type         = "b2-7"
   region       = "BHS5"
@@ -209,6 +212,7 @@ No modules.
 | <a name="input_dns_ttl"></a> [dns\_ttl](#input\_dns\_ttl) | TTL of the DNS VM record (IPV4 and IPV6) | `number` | `3600` | no |
 | <a name="input_dns_zone"></a> [dns\_zone](#input\_dns\_zone) | Zone of your DNS (domain.ext) | `set(string)` | `[]` | no |
 | <a name="input_image"></a> [image](#input\_image) | Name of the VM image | `string` | `"Debian 11"` | no |
+| <a name="input_metadata"></a> [metadata](#input\_metadata) | Metadata key/value pairs to make available from within the instance | `map(any)` | `{}` | no |
 | <a name="input_name"></a> [name](#input\_name) | Name of your dev VM instance | `string` | n/a | yes |
 | <a name="input_network"></a> [network](#input\_network) | Network list of the instance | `list(string)` | <pre>[<br>  "Ext-Net"<br>]</pre> | no |
 | <a name="input_region"></a> [region](#input\_region) | Region where you want to deploy the VM instance | `string` | `null` | no |

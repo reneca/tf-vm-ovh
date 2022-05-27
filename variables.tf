@@ -45,6 +45,12 @@ variable "storage" {
   default     = {}
 }
 
+variable "metadata" {
+  description = "Metadata key/value pairs to make available from within the instance"
+  type        = map(any)
+  default     = {}
+}
+
 variable "dns_zone" {
   description = "Zone of your DNS (domain.ext)"
   type        = set(string)

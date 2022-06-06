@@ -28,7 +28,7 @@ variable "image" {
 }
 
 variable "security_groups" {
-  description = "An array of one or more security group names to associate with the server"
+  description = "An array of one or more security group names to associate with the server (not working with OVH vRack)"
   type        = list(string)
   default     = ["default"]
 }
@@ -71,7 +71,7 @@ variable "ssh_key_path" {
 
 locals {
   name           = terraform.workspace != "default" ? "${terraform.workspace}-${var.name}" : var.name
-  user_data      = "#cloud-config\nhostname: ${local.name}${length(var.dns_zone) > 0 ? "\nfqdn: ${one(var.dns_zone)}.${var.name}" : ""}"
+  user_data      = "#cloud-config\nhostname: ${local.name}\nfqdn: ${var.name}.${length(var.dns_zone) > 0 ? element(tolist(var.dns_zone), 0) : "local"}"
   region         = var.region != null ? var.region : data.openstack_compute_availability_zones_v2.zones.region
   int_vm_storage = { for k, v in var.storage : k => v if v.size > 0 }
   ext_vm_storage = { for k, v in var.storage : k => v if v.size == 0 }

@@ -38,7 +38,8 @@ resource "openstack_compute_instance_v2" "instance" {
   dynamic "network" {
     for_each = var.network
     content {
-      name = network.value
+      name        = network.value.name
+      fixed_ip_v4 = network.value.ipv4
     }
   }
 }

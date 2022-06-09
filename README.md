@@ -4,7 +4,7 @@ This terraform module allow you to create an OVH virtual machine with its disks,
 
 It can manage either newly disk(s) or existing one(s).
 
-You can select over public / private (vRack) networks.
+You can select over public / [private (vRack) networks](https://github.com/reneca/tf-net-vrack-ovh).
 
 If you have OVH managed DNS, you can also add a public record for your VM in your managed zone.
 
@@ -129,9 +129,58 @@ module "vm" {
 
 ## VM with custom network
 
-You can select the `network` and the `security-groups` of your VM:
+You can select the `network` or the `security-groups` of your VM.
+OVH don't handle security-groups on private vRack network.
 
 The "Ext-Net" is to have a public interface, and the other network is for vRack (need to be define before)
+
+There is a [vRack module](https://github.com/reneca/tf-net-vrack-ovh.git) to deploy a private vRack network with its subnets. (See the module for the declaration)
+
+```hcl
+module "vm" {
+  source = "git::https://github.com/reneca/tf-vm-ovh.git?ref=main"
+  providers = {
+    openstack = openstack.ovh
+    ovh       = ovh.ovh
+  }
+
+  name       = "dummy"
+  network = {
+    public = {
+      name = "Ext-Net"
+    }
+    private = {
+      name = "${module.dev-net.net_name}"
+    }
+  }
+  depends_on = [module.dev-net.subnets]
+}
+```
+
+The IPv4 can also be define on the private network:
+```hcl
+module "vm" {
+  source = "git::https://github.com/reneca/tf-vm-ovh.git?ref=main"
+  providers = {
+    openstack = openstack.ovh
+    ovh       = ovh.ovh
+  }
+
+  name       = "dummy"
+  network = {
+    public = {
+      name = "Ext-Net"
+    }
+    private = {
+      name = "${module.dev-net.net_name}"
+      ipv4 = "10.0.0.1"
+    }
+  }
+  depends_on = [module.dev-net.subnets]
+}
+```
+
+And if you want to use multiple security group with only a public network interface
 
 ```hcl
 module "vm" {
@@ -143,7 +192,6 @@ module "vm" {
 
   name            = "dummy"
   security_groups = ["default", "custom"]
-  network         = ["Ext-Net", ovh_cloud_project_network_private.network.name]
 }
 ```
 
@@ -214,9 +262,9 @@ No modules.
 | <a name="input_image"></a> [image](#input\_image) | Name of the VM image | `string` | `"Debian 11"` | no |
 | <a name="input_metadata"></a> [metadata](#input\_metadata) | Metadata key/value pairs to make available from within the instance | `map(any)` | `{}` | no |
 | <a name="input_name"></a> [name](#input\_name) | Name of your dev VM instance | `string` | n/a | yes |
-| <a name="input_network"></a> [network](#input\_network) | Network list of the instance | `list(string)` | <pre>[<br>  "Ext-Net"<br>]</pre> | no |
+| <a name="input_network"></a> [network](#input\_network) | Network list of the instance | `map(object({ name = string, ipv4 = optional(string) }))` | <pre>{<br>  "public": {<br>    "name": "Ext-Net"<br>  }<br>}</pre> | no |
 | <a name="input_region"></a> [region](#input\_region) | Region where you want to deploy the VM instance | `string` | `null` | no |
-| <a name="input_security_groups"></a> [security\_groups](#input\_security\_groups) | An array of one or more security group names to associate with the server | `list(string)` | <pre>[<br>  "default"<br>]</pre> | no |
+| <a name="input_security_groups"></a> [security\_groups](#input\_security\_groups) | An array of one or more security group names to associate with the server (not working with OVH vRack) | `list(string)` | <pre>[<br>  "default"<br>]</pre> | no |
 | <a name="input_ssh_key_path"></a> [ssh\_key\_path](#input\_ssh\_key\_path) | Path of your SSH key | `string` | `"id_ecdsa.pub"` | no |
 | <a name="input_storage"></a> [storage](#input\_storage) | Additional storage for the VM | `map(object({ type = optional(string), size = number }))` | `{}` | no |
 | <a name="input_type"></a> [type](#input\_type) | Type of your VM instance | `string` | `"s1-2"` | no |

@@ -35,8 +35,8 @@ variable "security_groups" {
 
 variable "network" {
   description = "Network list of the instance"
-  type        = list(string)
-  default     = ["Ext-Net"]
+  type        = map(object({ name = string, ipv4 = optional(string) }))
+  default     = { public = { name = "Ext-Net" } }
 }
 
 variable "storage" {
